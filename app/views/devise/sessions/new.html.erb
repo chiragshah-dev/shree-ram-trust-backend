@@ -1,0 +1,42 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo"><i class="bi bi-shield-check"></i></div>
+    <p class="login-title">Welcome back</p>
+    <p class="login-sub">Sign in to your account</p>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <% if flash[:alert] %>
+        <div class="alert alert-danger py-2" style="font-size:.875rem;border-radius:8px;">
+          <i class="bi bi-exclamation-circle me-1"></i> <%= flash[:alert] %>
+        </div>
+      <% end %>
+
+      <div class="mb-3">
+        <%= f.label :email, class: "form-label" %>
+        <div class="input-group">
+          <span class="input-group-text" style="background:#f9fafb;border-right:0;">
+            <i class="bi bi-envelope" style="color:#9ca3af;"></i>
+          </span>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email",
+              class: "form-control",
+              style: "border-left:0;" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :password, class: "form-label" %>
+        <div class="input-group">
+          <span class="input-group-text" style="background:#f9fafb;border-right:0;">
+            <i class="bi bi-lock" style="color:#9ca3af;"></i>
+          </span>
+          <%= f.password_field :password, autocomplete: "current-password",
+              class: "form-control",
+              style: "border-left:0;" %>
+        </div>
+      </div>
+
+      <%= f.submit "Sign In", class: "btn btn-primary w-100 py-2",
+          style: "border-radius:8px;font-weight:600;" %>
+    <% end %>
+  </div>
+</div>

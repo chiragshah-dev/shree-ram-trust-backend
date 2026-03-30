@@ -1,0 +1,8 @@
+<% flash.each do |type, msg| %>
+  <% bs = type == 'notice' ? 'success' : 'danger' %>
+  <div class="alert alert-<%= bs %> alert-dismissible fade show" role="alert" style="border-radius:10px;">
+    <i class="bi bi-<%= type == 'notice' ? 'check-circle' : 'exclamation-circle' %> me-2"></i>
+    <%= msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+<% end %>

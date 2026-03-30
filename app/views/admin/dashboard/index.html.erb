@@ -1,0 +1,100 @@
+<% content_for :page_title, "Dashboard" %>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#ede9fe;color:#4f46e5;">
+        <i class="bi bi-list-task"></i>
+      </div>
+      <div class="stat-value"><%= @total_count %></div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#d1fae5;color:#065f46;">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div class="stat-value"><%= @completed_count %></div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#dbeafe;color:#1e40af;">
+        <i class="bi bi-clock"></i>
+      </div>
+      <div class="stat-value"><%= @pending_count %></div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fee2e2;color:#991b1b;">
+        <i class="bi bi-exclamation-circle"></i>
+      </div>
+      <div class="stat-value"><%= @overdue_count %></div>
+      <div class="stat-label">Overdue</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Today -->
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h6><i class="bi bi-sun me-2" style="color:#4f46e5;"></i>Today's Tasks</h6>
+        <span class="badge-status badge-progress"><%= @today_tasks.size %></span>
+      </div>
+      <div class="card-body p-3">
+        <% if @today_tasks.empty? %>
+          <p class="text-muted text-center py-3" style="font-size:.85rem;">No tasks due today</p>
+        <% else %>
+          <% @today_tasks.each do |task| %>
+            <%= render 'tasks/task_card', task: task, style_class: 'today' %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming -->
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h6><i class="bi bi-calendar3 me-2" style="color:#10b981;"></i>Upcoming</h6>
+        <span class="badge-status badge-completed"><%= @upcoming_tasks.size %></span>
+      </div>
+      <div class="card-body p-3">
+        <% if @upcoming_tasks.empty? %>
+          <p class="text-muted text-center py-3" style="font-size:.85rem;">No upcoming tasks</p>
+        <% else %>
+          <% @upcoming_tasks.each do |task| %>
+            <%= render 'tasks/task_card', task: task, style_class: 'upcoming' %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overdue -->
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h6><i class="bi bi-exclamation-triangle me-2" style="color:#ef4444;"></i>Overdue</h6>
+        <span class="badge-status badge-overdue"><%= @overdue_tasks.size %></span>
+      </div>
+      <div class="card-body p-3">
+        <% if @overdue_tasks.empty? %>
+          <p class="text-muted text-center py-3" style="font-size:.85rem;">No overdue tasks</p>
+        <% else %>
+          <% @overdue_tasks.each do |task| %>
+            <%= render 'tasks/task_card', task: task, style_class: 'overdue' %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

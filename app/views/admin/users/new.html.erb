@@ -1,0 +1,51 @@
+<% content_for :page_title, "Create User" %>
+
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-header">
+      <h6><i class="bi bi-person-plus me-2" style="color:#4f46e5;"></i>New User</h6>
+    </div>
+    <%= form_with model: [:admin, @user], local: true do |f| %>
+      <div class="card-body">
+        <% if @user.errors.any? %>
+          <div class="alert alert-danger" style="border-radius:10px;">
+            <% @user.errors.full_messages.each do |msg| %>
+              <div><%= msg %></div>
+            <% end %>
+          </div>
+        <% end %>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= f.label :name, class: "form-label" %>
+            <%= f.text_field :name, class: "form-control", placeholder: "Full name" %>
+          </div>
+          <div class="col-md-6">
+            <%= f.label :email, class: "form-label" %>
+            <%= f.email_field :email, class: "form-control", placeholder: "email@example.com" %>
+          </div>
+          <div class="col-md-6">
+            <%= f.label :password, class: "form-label" %>
+            <%= f.password_field :password, class: "form-control", placeholder: "Min. 8 characters" %>
+          </div>
+          <div class="col-md-6">
+            <%= f.label :password_confirmation, class: "form-label" %>
+            <%= f.password_field :password_confirmation, class: "form-control", placeholder: "Re-enter password" %>
+          </div>
+          <div class="col-md-6">
+            <%= f.label :role, class: "form-label" %>
+            <%= f.select :role, User.roles.keys.map { |r| [r.capitalize, r] },
+                { include_blank: "Select role…" }, class: "form-select" %>
+          </div>
+          <div class="col-md-6">
+            <%= f.label :active, class: "form-label" %>
+            <%= f.select :active, [["Active", true], ["Inactive", false]], {}, class: "form-select" %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent d-flex gap-2 justify-content-end">
+        <%= link_to "Cancel", admin_users_path, class: "btn btn-outline-secondary", style: "border-radius:8px;" %>
+        <%= f.submit "Create User", class: "btn btn-primary", style: "border-radius:8px;" %>
+      </div>
+    <% end %>
+  </div>
+</div>
