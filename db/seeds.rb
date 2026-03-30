@@ -7,3 +7,24 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+# ── Create Admin User ────────────────────────────────────
+admin = User.find_or_initialize_by(email: 'admin@gmail.com')
+
+if admin.new_record?
+  admin.assign_attributes(
+    name:                  'Super Admin',
+    password:              'Admin@123',
+    password_confirmation: 'Admin@123',
+    role:                  :admin,
+    active:                true
+  )
+
+  if admin.save
+    puts "✅ Admin created → email: admin@gmail.com | password: Admin@123"
+  else
+    puts "❌ Admin creation failed: #{admin.errors.full_messages.join(', ')}"
+  end
+else
+  puts "ℹ️  Admin already exists → #{admin.email}"
+end
