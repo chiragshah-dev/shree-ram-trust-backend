@@ -59,6 +59,10 @@ class User < ApplicationRecord
     BCrypt::Password.new(mpin_digest) == mpin
   end
 
+  def clear_temp_password!
+    update_column(:temp_password, nil)
+  end
+
   private
 
   def set_defaults
