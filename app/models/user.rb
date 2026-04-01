@@ -18,8 +18,8 @@
 
 
 class User < ApplicationRecord
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  devise :database_authenticatable, :rememberable
+
 
   # role: 0=user, 1=admin  (integer in DB, string in code)
   enum :role, { user: 0, admin: 1 }
@@ -28,8 +28,12 @@ class User < ApplicationRecord
   has_many :assigned_tasks, class_name: 'Task', foreign_key: 'assigned_to', dependent: :nullify
   has_many :notifications,  foreign_key: 'user_id', dependent: :destroy
 
-  validates :name,  presence: true
-  validates :email, presence: true, uniqueness: { case_sensitive: false }
+  validates :name, presence: true
+  validates :phone_number,
+            presence: true,
+            uniqueness: true,
+            format: { with: /\A\+91[6-9]\d{9}\z/, message: 'must be a valid Indian mobile number with +91' }
+  validates :password, presence: true, length: { minimum: 6 }, on: :create
   validates :password_confirmation, presence: true, on: :create
 
   before_create :set_defaults
@@ -40,28 +44,25 @@ class User < ApplicationRecord
     active == true
   end
 
-  # Generate a 6-digit OTP and save it with 10 min expiry
-  def generate_otp!
-    self.otp_code       = rand(100000..999999).to_s
-    self.otp_expires_at = 10.minutes.from_now
+  def mpin_set?
+    mpin_set == true && mpin_digest.present?
+  end
+
+  def set_mpin!(mpin)
+    self.mpin_digest = BCrypt::Password.create(mpin)
+    self.mpin_set    = true
     save!(validate: false)
-    otp_code
   end
 
-  # Check if OTP is valid and not expired
-  def valid_otp?(code)
-    otp_code == code.to_s && otp_expires_at.present? && otp_expires_at > Time.zone.now
+  def valid_mpin?(mpin)
+    return false unless mpin_digest.present?
+    BCrypt::Password.new(mpin_digest) == mpin
   end
-
-  # Clear OTP after use
-  def clear_otp!
-    update_columns(otp_code: nil, otp_expires_at: nil)
-  end
-
 
   private
 
   def set_defaults
-    self.role ||= :user
+    self.mpin_set = false if mpin_set.nil?
+    self.role   ||= :user
   end
 end

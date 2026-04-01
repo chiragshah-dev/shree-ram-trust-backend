@@ -4,8 +4,35 @@ class Api::V1::SessionsController < Api::V1::BaseController
   skip_before_action :authenticate_user!, only: [:create]
 
   # POST /api/v1/login
+  # def create
+  #   user = User.find_by(email: params.dig(:user, :email)&.downcase&.strip)
+
+  #   if user&.valid_password?(params.dig(:user, :password))
+  #     unless user.active?
+  #       return render_error('Your account is inactive. Contact admin.', :unauthorized)
+  #     end
+
+  #     if params.dig(:user, :fcm_token).present?
+  #       user.update(fcm_token: params.dig(:user, :fcm_token))
+  #     end
+
+  #     token = JsonWebToken.encode(user_id: user.id, role: user.role)
+
+  #     render_success(
+  #       { token: token, user: serialize(user, serializer: UserSerializer) },
+  #       message: 'Login successfully'
+  #     )
+  #   else
+  #     render_error('Invalid email or password', :unauthorized)
+  #   end
+  # end
+
   def create
-    user = User.find_by(email: params.dig(:user, :email)&.downcase&.strip)
+    # Normalize phone: accept "9999999999" or "+919999999999"
+    raw_phone = params.dig(:user, :phone_number).to_s.strip
+    phone = raw_phone.start_with?('+') ? raw_phone : "+91#{raw_phone}"
+
+    user = User.find_by(phone_number: phone)
 
     if user&.valid_password?(params.dig(:user, :password))
       unless user.active?
@@ -19,11 +46,14 @@ class Api::V1::SessionsController < Api::V1::BaseController
       token = JsonWebToken.encode(user_id: user.id, role: user.role)
 
       render_success(
-        { token: token, user: serialize(user, serializer: UserSerializer) },
+        {
+          token: token,
+          user: serialize(user, serializer: UserSerializer)
+        },
         message: 'Login successfully'
       )
     else
-      render_error('Invalid email or password', :unauthorized)
+      render_error('Invalid phone number or password', :unauthorized)
     end
   end
 

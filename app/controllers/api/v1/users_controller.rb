@@ -4,61 +4,58 @@ class Api::V1::UsersController < Api::V1::BaseController
 
   # GET /api/v1/users
   def index
-    users = User.user
-    # users = users.where(role: params[:role])     if params[:role].present?
+    users = User.where(role: :user)
     users = users.where(active: params[:active]) if params[:active].present?
     if params[:search].present?
       q = "%#{params[:search]}%"
-      users = users.where('name ILIKE :q OR email ILIKE :q', q: q)
+      users = users.where('name ILIKE :q OR phone_number ILIKE :q', q: q)
     end
     users = users.order(created_at: :desc).page(params[:page]).per(params[:per_page] || 10)
 
+    # preload task counts to avoid N+1
+    task_counts = Task.where(assigned_to: users.map(&:id))
+                      .group(:assigned_to, :status)
+                      .count
+
     render_list(
-      serialize(users, each_serializer: UserSerializer, stats: true), message: 'Users List',
+      serialize(users, each_serializer: UserSerializer, task_counts: task_counts),
+      message: 'Users List',
       meta: pagination_meta(users)
     )
   end
 
   # POST /api/v1/users
   def create
-    # user = User.new(user_params)
-    # user.password              = params.dig(:user, :password)
-    # user.password_confirmation = params.dig(:user, :password_confirmation)
+    plain_password        = params.dig(:user, :password)
+    password_confirmation = params.dig(:user, :password_confirmation)
 
-    # if user.save
-    #   render_success(
-    #     serialize(user, serializer: UserSerializer),
-    #     message: 'User created successfully',
-    #     status: :created
-    #   )
-    # else
-    #   render_validation_error(user)
-    # end
-    plain_password = params.dig(:user, :password)
+    if plain_password != password_confirmation
+      return render_error('Password and password confirmation do not match', :unprocessable_entity)
+    end
 
     user = User.new(user_params)
     user.password              = plain_password
-    user.password_confirmation = params.dig(:user, :password_confirmation)
+    user.password_confirmation = password_confirmation
 
     if user.save
-      # send welcome email with credentials
-      UserMailer.welcome_email(user, plain_password).deliver_later
-
       render_success(
-        serialize(user, serializer: UserSerializer),
-        message: 'User created successfully. Login credentials sent to their email.',
-        status: :created
+        {
+          user: serialize(user, serializer: UserSerializer),
+          credentials: {
+            phone_number: user.phone_number,
+            password:     plain_password
+          }
+        },
+        message: 'User created successfully. Share credentials with the user.',
+        status:  :created
       )
     else
       render_validation_error(user)
     end
-
   rescue ActionController::ParameterMissing => e
     render_error(e.message, :unprocessable_entity)
-
   rescue ActiveRecord::RecordInvalid => e
     render_error(e.record.errors.full_messages.join(', '), :unprocessable_entity)
-
   rescue StandardError => e
     Rails.logger.error("User Create Error: #{e.message}")
     render_error('Something went wrong', :internal_server_error)
@@ -69,11 +66,23 @@ class Api::V1::UsersController < Api::V1::BaseController
     unless current_user.admin? || @user.id == current_user.id
       return render_error('Access denied', :forbidden)
     end
-    render_success(serialize(@user, serializer: UserSerializer, stats: true))
+    render_success(serialize(@user, serializer: UserSerializer))
   end
 
   # PATCH /api/v1/users/:id
   def update
+    if params.dig(:user, :password).present?
+      plain_password        = params.dig(:user, :password)
+      password_confirmation = params.dig(:user, :password_confirmation)
+
+      if plain_password != password_confirmation
+        return render_error('Password and password confirmation do not match', :unprocessable_entity)
+      end
+
+      @user.password              = plain_password
+      @user.password_confirmation = password_confirmation
+    end
+
     if @user.update(user_params)
       render_success(serialize(@user, serializer: UserSerializer),
                      message: 'User updated successfully')
@@ -93,18 +102,19 @@ class Api::V1::UsersController < Api::V1::BaseController
   # DELETE /api/v1/users/:id
   def destroy
     @user.update!(active: false)
-    render_success(nil, message: 'User deactivated successfully')
+    render_success(nil, message: 'User deleted successfully')
   end
 
   private
 
   def set_user
-    @user = User.find(params[:id])
+    @user = User.user.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render_error('User not found', :not_found)
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :role, :active, :fcm_token)
+    params.require(:user).permit(:name, :phone_number, :role, :active, :fcm_token)
   end
+
 end
