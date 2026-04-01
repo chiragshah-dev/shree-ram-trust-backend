@@ -1,6 +1,6 @@
 class UserSerializer < ActiveModel::Serializer
   # always included fields
-  attributes :id, :name, :role, :active, :phone_number, :mpin_set, :is_admin, :fcm_token, :created_at, :task_counts
+  attributes :id, :name, :role, :active, :phone_number, :mpin_set, :is_admin, :fcm_token, :created_at, :task_counts, :credentials
 
   attribute :task_stats, if: :include_stats?
 
@@ -32,4 +32,13 @@ class UserSerializer < ActiveModel::Serializer
   def is_admin
     object.admin?
   end
+
+  def credentials
+    return nil if object.temp_password.blank?
+    {
+      phone_number: object.phone_number,
+      password:     object.temp_password
+    }
+  end
+
 end

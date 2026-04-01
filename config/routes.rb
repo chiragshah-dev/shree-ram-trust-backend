@@ -63,7 +63,11 @@ Rails.application.routes.draw do
 
       # Users
       resources :users, only: [:index, :create, :show, :update, :destroy] do
-        member { patch :toggle_active }
+        member do
+          patch :toggle_active
+          patch :reset_password
+        end
+
       end
 
       # Profile (singular — no :id needed, always current_user)

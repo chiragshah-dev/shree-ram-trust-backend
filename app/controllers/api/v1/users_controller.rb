@@ -1,6 +1,6 @@
 class Api::V1::UsersController < Api::V1::BaseController
   before_action :admin_only!, except: [:show]
-  before_action :set_user,    only: [:show, :update, :destroy, :toggle_active]
+  before_action :set_user,    only: [:show, :update, :destroy, :toggle_active, :reset_password]
 
   # GET /api/v1/users
   def index
@@ -36,16 +36,11 @@ class Api::V1::UsersController < Api::V1::BaseController
     user = User.new(user_params)
     user.password              = plain_password
     user.password_confirmation = password_confirmation
+    user.temp_password         = plain_password
 
     if user.save
       render_success(
-        {
-          user: serialize(user, serializer: UserSerializer),
-          credentials: {
-            phone_number: user.phone_number,
-            password:     plain_password
-          }
-        },
+        serialize(user, serializer: UserSerializer),
         message: 'User created successfully. Share credentials with the user.',
         status:  :created
       )
@@ -105,6 +100,28 @@ class Api::V1::UsersController < Api::V1::BaseController
     render_success(nil, message: 'User deleted successfully')
   end
 
+   # PATCH /api/v1/users/:id/reset_password
+  def reset_password
+    if params.dig(:user, :password).present?
+      plain_password        = params.dig(:user, :password)
+      password_confirmation = params.dig(:user, :password_confirmation)
+
+      if plain_password != password_confirmation
+        return render_error('Password and password confirmation do not match', :unprocessable_entity)
+      end
+
+      @user.password              = plain_password
+      @user.password_confirmation = password_confirmation
+      @user.temp_password         = plain_password  # refresh temp
+    end
+    if @user.save
+      render_success(serialize(@user, serializer: UserSerializer),
+        message: 'Password reset successfully. Share new credentials with the user.'
+      )
+    else
+      render_validation_error(@user)
+    end
+  end
   private
 
   def set_user
