@@ -9,7 +9,7 @@
 #   end
 
 # ── Create Admin User ────────────────────────────────────
-admin = User.find_or_initialize_by(email: 'admin@gmail.com')
+admin = User.find_or_initialize_by(phone_number: '+919999999999')
 
 if admin.new_record?
   admin.assign_attributes(
@@ -19,12 +19,11 @@ if admin.new_record?
     role:                  :admin,
     active:                true
   )
-
   if admin.save
-    puts "✅ Admin created → email: admin@gmail.com | password: Admin@123"
+    puts "✅ Admin created → phone: +919999999999 | password: Admin@123"
   else
     puts "❌ Admin creation failed: #{admin.errors.full_messages.join(', ')}"
   end
 else
-  puts "ℹ️  Admin already exists → #{admin.email}"
+  puts "ℹ️  Admin already exists → #{admin.phone_number}"
 end

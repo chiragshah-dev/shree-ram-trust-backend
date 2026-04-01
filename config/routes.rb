@@ -49,6 +49,12 @@ Rails.application.routes.draw do
       post   'login',  to: 'sessions#create'
       delete 'logout', to: 'sessions#destroy'
 
+      namespace :mpin do
+        post 'set',         to: '/api/v1/mpins#set_mpin'
+        post 'verify',      to: '/api/v1/mpins#verify_mpin'
+        put  'change',      to: '/api/v1/mpins#change_mpin'
+      end
+
       namespace :passwords do
         post :forgot       # step 1 — send OTP
         post :verify_otp   # step 2 — verify OTP → get reset_token
