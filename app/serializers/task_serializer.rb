@@ -1,26 +1,35 @@
 class TaskSerializer < ActiveModel::Serializer
-  attributes :id, :title, :description, :status,
-             :assign_date, :due_date, :created_at, :updated_at
+  attributes :id,
+             :title,
+             :description,
+             :notes,
+             :priority,
+             :status,
+             :assign_date,
+             :due_date,
+             :created_by,
+             :assigned_to,
+             :created_at,
+             :updated_at,
+             :assignee,
+             :creator
 
-  # embed assignee as object, not just ID
-  attribute :assigned_to do
+  def assignee
+    return nil unless object.assignee
     {
-      id:    object.assignee&.id,
-      name:  object.assignee&.name,
-      email: object.assignee&.email
+      id:           object.assignee.id,
+      name:         object.assignee.name,
+      phone_number: object.assignee.phone_number
     }
   end
 
-  # embed creator as object
-  attribute :created_by do
+  def creator
+    return nil unless object.creator
     {
-      id:   object.creator&.id,
-      name: object.creator&.name
+      id:   object.creator.id,
+      name: object.creator.name
     }
-  end
-
-  # computed field — true if past due and not completed
-  attribute :is_overdue do
-    object.due_date.present? && object.due_date < Time.zone.now && !object.completed?
   end
 end
+
+

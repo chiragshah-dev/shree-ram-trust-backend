@@ -3,7 +3,7 @@ class Api::V1::ProfilesController < Api::V1::BaseController
   # GET /api/v1/profile
   def show
     render_success(
-      serialize(current_user, serializer: UserSerializer, stats: true),
+      serialize(current_user, serializer: UserSerializer),
       message: 'Profile fetched successfully'
     )
   end
