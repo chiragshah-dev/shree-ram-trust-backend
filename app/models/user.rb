@@ -25,7 +25,7 @@ class User < ApplicationRecord
   enum :role, { user: 0, admin: 1 }
 
   has_many :created_tasks,  class_name: 'Task', foreign_key: 'created_by',  dependent: :destroy
-  has_many :assigned_tasks, class_name: 'Task', foreign_key: 'assigned_to', dependent: :nullify
+  has_many :assigned_tasks, class_name: 'Task', foreign_key: 'assigned_to', dependent: :destroy
   has_many :notifications,  foreign_key: 'user_id', dependent: :destroy
 
   validates :name, presence: true
