@@ -96,7 +96,7 @@ class Api::V1::UsersController < Api::V1::BaseController
 
   # DELETE /api/v1/users/:id
   def destroy
-    @user.update!(active: false)
+    @user.destroy!
     render_success(nil, message: 'User deleted successfully')
   end
 

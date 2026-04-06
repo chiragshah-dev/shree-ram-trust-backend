@@ -15,18 +15,19 @@ class Task < ApplicationRecord
   validates :created_by,  presence: true
 
   validates :assign_date,
-            presence: true,
-            comparison: {
-              greater_than_or_equal_to: -> (_) { Date.today },
-              message: 'cannot be in the past'
-            }
+          presence: true,
+          comparison: {
+            greater_than_or_equal_to: -> (_) { Date.today },
+            message: 'cannot be in the past'
+          }, if: -> { new_record? || assign_date_changed? }
 
   validates :due_date,
-            presence: true,
-            comparison: {
-              greater_than_or_equal_to: -> (_) { Time.zone.now },
-              message: 'cannot be in the past'
-            }
+          presence: true,
+          comparison: {
+            greater_than_or_equal_to: -> (_) { Time.zone.now },
+            message: 'cannot be in the past'
+          }, if: -> { new_record? || due_date_changed? }
+
   validate :due_date_after_assign_date
 
   # Scopes — reusable query shortcuts
