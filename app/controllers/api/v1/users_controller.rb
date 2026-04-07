@@ -131,7 +131,7 @@ class Api::V1::UsersController < Api::V1::BaseController
   end
 
   def user_params
-    params.require(:user).permit(:name, :phone_number, :role, :active, :fcm_token)
+    params.require(:user).permit(:name, :phone_number, :role, :active)
   end
 
 end

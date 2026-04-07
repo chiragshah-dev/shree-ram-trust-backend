@@ -1,6 +1,6 @@
 class UserSerializer < ActiveModel::Serializer
   # always included fields
-  attributes :id, :name, :role, :active, :phone_number, :mpin_set, :is_admin, :fcm_token, :created_at, :task_counts, :credentials
+  attributes :id, :name, :role, :active, :phone_number, :mpin_set, :is_admin, :device_id, :created_at, :task_counts, :credentials
 
   attribute :task_stats, if: :include_stats?
 
