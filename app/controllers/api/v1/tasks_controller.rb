@@ -153,6 +153,7 @@ class Api::V1::TasksController < Api::V1::BaseController
         message: 'Task created successfully.',
         status:  :created
       )
+      notify_assignee_on_create(task)
     else
       render_validation_error(task)
     end
@@ -269,6 +270,38 @@ class Api::V1::TasksController < Api::V1::BaseController
     current_user.admin? ? Task.all : Task.where(assigned_to: current_user.id)
   end
 
+   # Notify assignee when a new task is created — called in create
+  def notify_assignee_on_create(task)
+    assignee = task.assignee
+    return unless assignee
+    due = task.due_date.strftime('%d %b %Y, %I:%M %p')
+
+    Notification.create!(
+      user_id:     assignee.id,
+      notify_type: 'task_assigned',
+      params: {
+        'task_id'    => task.id,
+        'task_title' => task.title,
+        'due_date'   => task.due_date.to_s,
+        'created_by' => current_user.name,
+        'message'    => "#{current_user.name} assigned you a new task: #{task.title} — Due: #{due}"
+      }
+    )
+    FcmService.send_notification(
+      fcm_token: assignee.device_id,
+      title:     'New Task Assigned',
+      body:      "#{current_user.name} assigned you a new task: #{task.title} — Due: #{due}",
+      data: {
+        'type'       => 'task_assigned',
+        'task_id'    => task.id.to_s,
+        'task_title' => task.title,
+        'due_date'   => task.due_date.to_s,
+        'created_by' => current_user.name
+      }
+    )
+  end
+
+  # Notify all admins when user updates/completes a task — called in update_status & complete
   def notify_admins_on_action(task, actor, new_status, old_status: nil)
     User.where(role: :admin).each do |admin|
       Notification.create!(
@@ -280,7 +313,23 @@ class Api::V1::TasksController < Api::V1::BaseController
           'new_status' => new_status,
           'old_status' => old_status,
           'actor_name' => actor.name,
-          'actor_id'   => actor.id
+          'actor_id'   => actor.id,
+          'message'    => "#{actor.name} changed #{task.title} Task to #{new_status.humanize}"
+        }
+      )
+
+      FcmService.send_notification(
+        fcm_token: admin.device_id,
+        title:     'Task Status Updated',
+        body:      "#{actor.name} user changed #{task.title} Task to #{new_status.humanize}",
+        data: {
+          'type'       => 'task_action',
+          'task_id'    => task.id.to_s,
+          'task_title' => task.title,
+          'new_status' => new_status,
+          'old_status' => old_status.to_s,
+          'actor_name' => actor.name,
+          'actor_id'   => actor.id.to_s
         }
       )
     end

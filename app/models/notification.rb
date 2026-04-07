@@ -17,15 +17,6 @@ class Notification < ApplicationRecord
 
   # Human-readable message built from stored params
   def message
-    case notify_type
-    when 'task_assigned'
-      "New task assigned: #{params['task_title']} — Due: #{params['due_date']}"
-    when 'task_action'
-      "#{params['actor_name']} updated '#{params['task_title']}' to #{params['status']}"
-    when 'daily_report'
-      "Daily Report ready: #{params['summary']}"
-    else
-      params['message'].to_s
-    end
+    params['message'].to_s
   end
 end
