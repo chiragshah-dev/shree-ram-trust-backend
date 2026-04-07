@@ -12,8 +12,8 @@ class Api::V1::SessionsController < Api::V1::BaseController
   #       return render_error('Your account is inactive. Contact admin.', :unauthorized)
   #     end
 
-  #     if params.dig(:user, :fcm_token).present?
-  #       user.update(fcm_token: params.dig(:user, :fcm_token))
+  #     if params.dig(:user, :device_id).present?
+  #       user.update(device_id: params.dig(:user, :device_id))
   #     end
 
   #     token = JsonWebToken.encode(user_id: user.id, role: user.role)
@@ -39,8 +39,8 @@ class Api::V1::SessionsController < Api::V1::BaseController
         return render_error('Your account is inactive. Contact admin.', :unauthorized)
       end
 
-      if params.dig(:user, :fcm_token).present?
-        user.update(fcm_token: params.dig(:user, :fcm_token))
+      if params.dig(:user, :device_id).present?
+        user.update(device_id: params.dig(:user, :device_id))
       end
 
       token = JsonWebToken.encode(user_id: user.id, role: user.role)
@@ -76,7 +76,7 @@ class Api::V1::SessionsController < Api::V1::BaseController
       end
 
       user = User.find_by(id: jwt_payload['user_id'])
-      user&.update(fcm_token: nil)
+      user&.update(device_id: nil)
 
       render_success(nil, message: 'Logged out successfully')
 

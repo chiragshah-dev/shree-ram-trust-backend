@@ -50,6 +50,6 @@ class Api::V1::ProfilesController < Api::V1::BaseController
   private
 
   def profile_params
-    params.require(:user).permit(:name, :fcm_token)
+    params.require(:user).permit(:name)
   end
 end
