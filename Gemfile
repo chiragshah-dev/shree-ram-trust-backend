@@ -65,3 +65,7 @@ gem "devise"
 gem "devise-jwt"
 gem "kaminari"
 gem "active_model_serializers"
+# gem "fcm"
+
+gem "googleauth"
+gem "faraday"
