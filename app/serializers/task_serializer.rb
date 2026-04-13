@@ -32,7 +32,9 @@ class TaskSerializer < ActiveModel::Serializer
   end
 
   def overdue
-    object.due_date < Time.zone.now && object.status != 'completed'
+    return false if object.completed?
+
+    object.due_date.strftime("%Y-%m-%d %H:%M") < Time.now.strftime("%Y-%m-%d %H:%M")
   end
 end
 
