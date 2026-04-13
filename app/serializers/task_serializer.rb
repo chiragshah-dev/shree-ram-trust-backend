@@ -12,8 +12,8 @@ class TaskSerializer < ActiveModel::Serializer
              :created_at,
              :updated_at,
              :assignee,
-             :creator
-
+             :creator,
+             :overdue
   def assignee
     return nil unless object.assignee
     {
@@ -29,6 +29,10 @@ class TaskSerializer < ActiveModel::Serializer
       id:   object.creator.id,
       name: object.creator.name
     }
+  end
+
+  def overdue
+    object.due_date < Time.zone.now && object.status != 'completed'
   end
 end
 
