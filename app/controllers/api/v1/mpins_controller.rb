@@ -63,4 +63,23 @@ class Api::V1::MpinsController < Api::V1::BaseController
     )
   end
 
+  # POST /api/v1/mpin/mpin_reset
+  def mpin_reset
+    # Check if the current user is an admin
+    unless current_user.admin?
+      return render_error('Unauthorized', :unauthorized)
+    end
+
+    # Find the user by ID passed in the params
+    user = User.find_by(id: params[:user_id])
+    return render_error('User not found', :not_found) unless user
+
+    # Reset the MPIN for the user
+    user.update(mpin_set: false, mpin_digest: nil)
+
+    render_success(
+      { user: serialize(user, serializer: UserSerializer) },
+      message: 'MPIN reset successfully. User can now set a new MPIN.'
+    )
+  end
 end

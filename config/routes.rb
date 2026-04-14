@@ -53,6 +53,9 @@ Rails.application.routes.draw do
         post 'set',         to: '/api/v1/mpins#set_mpin'
         post 'verify',      to: '/api/v1/mpins#verify_mpin'
         put  'change',      to: '/api/v1/mpins#change_mpin'
+
+        post 'mpin_reset',      to: '/api/v1/mpins#mpin_reset'
+
       end
 
       namespace :passwords do

@@ -148,6 +148,7 @@ class Api::V1::TasksController < Api::V1::BaseController
     task = Task.new(task_params.merge(created_by: current_user.id))
 
     if task.save
+      task.voice_note.attach(params[:task][:voice_note]) if params[:task][:voice_note]
       render_success(
         serialize(task, serializer: TaskSerializer),
         message: 'Task created successfully.',
@@ -182,6 +183,9 @@ class Api::V1::TasksController < Api::V1::BaseController
     end
 
     if @task.update(task_params)
+      if params[:task][:voice_note]
+        @task.voice_note.attach(params[:task][:voice_note])
+      end
       render_success(serialize(@task, serializer: TaskSerializer),
                      message: 'Task updated successfully')
     else
@@ -344,6 +348,7 @@ class Api::V1::TasksController < Api::V1::BaseController
       :assign_date,
       :due_date,
       :assigned_to
+      :voice_note
     )
   end
 end

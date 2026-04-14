@@ -9,7 +9,7 @@ class Task < ApplicationRecord
 
   # priority: 0=low, 1=medium, 2=high, 3=urgent, 4=critical
   enum :priority, { low: 0, medium: 1, high: 2, urgent: 3, critical: 4 }
-
+  has_one_attached :voice_note
   validates :title,       presence: true
   validates :assigned_to, presence: true
   validates :created_by,  presence: true
@@ -39,6 +39,7 @@ class Task < ApplicationRecord
           [Task.statuses[:completed]])
   }
 
+  validate :validate_audio_file
   # Automatically send notification when task is created
   # after_create  :notify_assignee_on_create
   # Automatically notify admin when status changes
@@ -79,6 +80,16 @@ class Task < ApplicationRecord
           'actor_name' => assignee&.name
         }
       )
+    end
+  end
+
+  def validate_audio_file
+    if voice_note.attached?
+      if !voice_note.content_type.starts_with?('audio/')
+        errors.add(:voice_note, 'must be an audio file')
+      elsif voice_note.byte_size > 10.megabytes
+        errors.add(:voice_note, 'should be less than 10MB')
+      end
     end
   end
 end

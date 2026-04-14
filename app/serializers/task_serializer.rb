@@ -13,7 +13,8 @@ class TaskSerializer < ActiveModel::Serializer
              :updated_at,
              :assignee,
              :creator,
-             :overdue
+             :overdue,
+             :voice_note_url
   def assignee
     return nil unless object.assignee
     {
@@ -35,6 +36,11 @@ class TaskSerializer < ActiveModel::Serializer
     return false if object.completed?
 
     object.due_date.strftime("%Y-%m-%d %H:%M") < Time.now.strftime("%Y-%m-%d %H:%M")
+  end
+
+
+  def voice_note_url
+    object.voice_note.attached? ? Rails.application.routes.url_helpers.rails_blob_url(object.voice_note, only_path: false) : nil
   end
 end
 
