@@ -35,8 +35,8 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.0]
       t.datetime :otp_expires_at
 
       ## MPIN
-      t.string  :mpin_digest
-      t.boolean :mpin_set, default: false, null: false
+      # t.string  :mpin_digest
+      # t.boolean :mpin_set, default: false, null: false
 
       t.timestamps null: false
     end
