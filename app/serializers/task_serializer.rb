@@ -15,33 +15,30 @@ class TaskSerializer < ActiveModel::Serializer
              :creator,
              :overdue,
              :voice_note_url
+
   def assignee
     return nil unless object.assignee
     {
-      id:           object.assignee.id,
-      name:         object.assignee.name,
-      phone_number: object.assignee.phone_number
+      id: object.assignee.id,
+      name: object.assignee.name,
+      phone_number: object.assignee.phone_number,
     }
   end
 
   def creator
     return nil unless object.creator
     {
-      id:   object.creator.id,
-      name: object.creator.name
+      id: object.creator.id,
+      name: object.creator.name,
     }
   end
 
   def overdue
     return false if object.completed?
-
-    object.due_date.strftime("%Y-%m-%d %H:%M") < Time.current.in_time_zone('Asia/Kolkata').strftime("%Y-%m-%d %H:%M")
+    object.due_date < Time.current
   end
-
 
   def voice_note_url
     object.voice_note.attached? ? Rails.application.routes.url_helpers.rails_blob_url(object.voice_note, only_path: false) : nil
   end
 end
-
-
