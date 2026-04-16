@@ -70,6 +70,9 @@ Rails.application.routes.draw do
           patch :toggle_active
           patch :reset_password
         end
+        collection do
+          get :active_users
+        end
 
       end
 
