@@ -24,6 +24,11 @@ class Api::V1::UsersController < Api::V1::BaseController
     )
   end
 
+  def active_users
+    active_users = User.active.where(role: :user)
+    render_list(serialize(active_users,message: "Active users List"))
+  end
+
   # POST /api/v1/users
   def create
     plain_password        = params.dig(:user, :password)
