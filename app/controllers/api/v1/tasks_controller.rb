@@ -345,7 +345,6 @@ class Api::V1::TasksController < Api::V1::BaseController
       :description,
       :notes,
       :priority,
-      :assign_date,
       :due_date,
       :assigned_to,
       :voice_note

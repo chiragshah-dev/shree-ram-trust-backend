@@ -15,7 +15,7 @@ class TaskReminderService
   
   def self.send_reminders(start_range, end_range, column, notify_type, time_diff)
     # Range search prevents double notifications
-    tasks = Task.where(due_date: start_range..end_range)
+    tasks = Task.pending.where(due_date: start_range..end_range)
                 .where(column => [false, nil])
 
     tasks.find_each do |task|
@@ -38,8 +38,8 @@ class TaskReminderService
       if user.device_id.present?
         FcmService.send_notification(
           fcm_token: user.device_id,
-          title: "Task Reminder",
-          body: "Task '#{task.title}' is due at #{due}",
+          title: task.title,
+          body: message_for(time_diff),
           data: {
             "type" => notify_type,
             "task_id" => task.id.to_s,
