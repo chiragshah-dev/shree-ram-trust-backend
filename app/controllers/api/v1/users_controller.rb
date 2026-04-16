@@ -25,7 +25,7 @@ class Api::V1::UsersController < Api::V1::BaseController
   end
 
   def active_users
-    active_users = User.active.where(role: :user)
+    active_users = User.active.where(role: :user).order(created_at: :desc)
     render_list(serialize(active_users,message: "Active users List"))
   end
 
