@@ -87,7 +87,7 @@ class Api::V1::TasksController < Api::V1::BaseController
   def index
     tasks = task_scope
               .includes(:creator, :assignee)
-              .order(due_date: :asc)
+              .order(created_at: :desc)
 
     # filters
     tasks = tasks.where(status:      params[:status])            if params[:status].present?
