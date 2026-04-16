@@ -8,3 +8,7 @@ set :job_template, "/bin/bash -l -c 'source /home/developer/.rvm/scripts/rvm && 
 every 30.minute do
   rake "task_reminder:send"
 end
+
+every 1.day, at: "12:00 am" do
+  rake "notification_cleanup:delete_old"
+end
