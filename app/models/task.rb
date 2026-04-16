@@ -14,12 +14,13 @@ class Task < ApplicationRecord
   validates :assigned_to, presence: true
   validates :created_by, presence: true
 
-  validates :assign_date,
-            presence: true,
-            comparison: {
-              greater_than_or_equal_to: ->(_) { Time.current },
-              message: "cannot be in the past",
-            }, if: -> { new_record? || assign_date_changed? }
+  # validates :assign_date,
+  #           presence: true,
+  #           comparison: {
+  #             greater_than_or_equal_to: ->(_) { Time.current - 1.minute },
+  #             message: "cannot be in the past",
+  #           },
+  #           if: -> { new_record? || assign_date_changed? }
 
   validates :due_date,
             presence: true,
@@ -30,6 +31,8 @@ class Task < ApplicationRecord
 
   validate :due_date_after_assign_date
 
+  before_validation :set_assign_date, on: :create
+
   # Scopes — reusable query shortcuts
   scope :today, -> { where(due_date: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day) }
   scope :upcoming, -> { where("due_date > ?", Time.zone.now.end_of_day) }
@@ -38,6 +41,7 @@ class Task < ApplicationRecord
                 Time.zone.now,
                 [Task.statuses[:completed]])
         }
+  scope :pending, -> { where(status: "pending") }
 
   validate :validate_audio_file
   # Automatically send notification when task is created
@@ -46,6 +50,10 @@ class Task < ApplicationRecord
   # after_update  :notify_admin_on_action, if: :saved_change_to_status?
 
   private
+
+  def set_assign_date
+    self.assign_date = Time.current
+  end
 
   # only one custom validate needed — Rails has no cross-field comparison built in
   def due_date_after_assign_date
