@@ -64,8 +64,8 @@ class Api::V1::BaseController < ApplicationController
 
   # ActiveRecord validation errors
   def render_validation_error(record)
-    render_error('Validation failed', :unprocessable_entity,
-                 errors: record.errors.full_messages)
+    render_error(record&.errors&.full_messages&.join(', '), :unprocessable_entity,
+                 errors: record&.errors&.full_messages)
   end
 
   # Kaminari pagination block
