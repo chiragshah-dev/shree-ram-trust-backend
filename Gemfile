@@ -70,3 +70,4 @@ gem "active_model_serializers"
 gem "googleauth"
 gem "faraday"
 gem 'whenever', require: false
+gem 'stringio', '3.0.4'
